@@ -11,10 +11,28 @@ const defaultCartState = {
 const cartReducer = (state, action) => {
     if (action.type === 'ADD'){
         console.log("CartProvider.cartReducer: ADD");
-        // concat() returns a new array, rather than updating the one 
-        // stored in memory (without React knowing about it)
-        const updatedItems = state.items.concat(action.item);        
         const updatedTotalAmount = state.totalAmount + (action.item.price * action.item.amount);
+        
+        //findexIndex() returns true or false
+        const existingCartItemIdex = state.items.findIndex(
+            (item) => item.id === action.item.id
+        );
+        const existingCartItem = state.items[existingCartItemIdex];
+        let updatedItems;
+
+        if (existingCartItem) {            
+            const updatedItem = {
+                ...existingCartItem,
+                amount: existingCartItem.amount + action.item.amount
+            };
+            updatedItems = [... state.items];
+            updatedItems[existingCartItemIdex] = updatedItem;
+        } else {             
+            updatedItems = state.items.concat(action.item);  
+            // concat() returns a new array, rather than push(), which updates 
+            // the one stored in memory (without React knowing about it)        
+        }
+             
         return {
             items: updatedItems,
             totalAmount: updatedTotalAmount
